@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #container {
+            color: #fff;
+            padding: 16px;
+            margin: 32px;
+            min-height: 600px;
+            text-align: center;
+            background-color: cadetblue;
+        }
+
+        #input {
+            margin-top: 8px;
+        }
+
+        #tab {
+            margin: 32px auto;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+    <div id="container">
+        <h2>To Do App</h2>
+        <input type="text" name="input" id="input">
+        <input onclick="saveFunction()" type="submit" value="SAVE">
+        <table border="1px" id="tab">
+            <tr>
+                <td>No.</td>
+                <td>Todo item</td>
+                <td>Status</td>
+                <td>Actions</td>
+            </tr>
+        </table>
+
+    </div>
+    <script>
+        let listJob = JSON.parse(localStorage.getItem('listJob'))
+        if (listJob == null) {
+            listJob = [];
+        }
+        function saveFunction() {
+            let input = $('#input').val();
+            let flag = JSON.parse(localStorage.getItem('flag'))
+            let jobInfo = {
+                content: input,
+                status: 'In Progress'
+            }
+            if (flag != null) {
+                listJob.splice(flag, 1, jobInfo)
+                renderSave()
+                localStorage.removeItem('flag')
+                return;
+            }
+
+            listJob.push(jobInfo);
+            localStorage.setItem('listJob', JSON.stringify(listJob));
+            renderSave()
+        }
+        function renderSave() {
+            let no = 0
+            let result = `<tr>
+                    <td>No.</td>
+                    <td>Todo item</td>
+                    <td>Status</td>
+                    <td>Actions</td>
+                </tr>`
+            for (let i = 0; i < listJob.length; i++) {
+                no += 1
+                result += `<tr>
+                    <td>${no}</td>
+                    <td>${listJob[i].content}</td>
+                    <td>${listJob[i].status}</td>
+                    <td>
+                        <button onclick = editFunction(${i})>Edit</button>
+                        <button onclick = deleteFunction(${i})>Delete</button>
+                        <button onclick = finishedFunction(${i})>Finished</button>
+                        </td>
+                </tr>`
+
+            }
+            // document.getElementById("tab").innerHTML=result;
+            $("#tab").html(result);
+            console.log(result);
+
+        }
+        renderSave()
+
+        function deleteFunction(id) {
+            listJob.splice(id, 1)
+            localStorage.setItem('listJob', JSON.stringify(listJob));
+            renderSave();
+        }
+        function editFunction(id) {
+            document.getElementById('input').value = listJob[id].content;
+            localStorage.setItem('flag', id)
+        }
+        function finishedFunction(id) {
+            listJob[id].status = 'Success';
+            renderSave();
+        }
+    </script>
+</body>
+
+</html>
